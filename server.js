@@ -2,6 +2,25 @@ let fs = require('fs');
 const timeStamp = require('./time.js').timeStamp;
 const http = require('http');
 const WebApp = require('./webapp');
+let toS = o => JSON.stringify(o, null, 2);
+
+// let registered_users = [{
+//   userName: 'santosh',
+//   name: 'Santosh Kaski'
+// }];
+
+let logRequest = (req, res) => {
+  let text = ['------------------------------',
+  `${timeStamp()}`,
+  `${req.method} ${req.url}`,
+  `HEADERS=> ${toS(req.headers)}`,
+  `COOKIES=> ${toS(req.cookies)}`,
+  `BODY=> ${toS(req.body)}`, ''
+].join('\n');
+fs.appendFile('request.log', text, () => {});
+
+console.log(`${req.method} ${req.url}`);
+}
 
 let getHeader = function(fileName) {
   let ext = fileName.slice(fileName.lastIndexOf('.') + 1)
@@ -34,6 +53,7 @@ let serveFile=function(req,res) {
 }
 
 let app = WebApp.create();
+app.use(logRequest);
 app.use(serveFile);
 
 
