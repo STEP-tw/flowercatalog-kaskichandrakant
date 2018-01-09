@@ -1,0 +1,49 @@
+h1{
+  border-bottom: 1px solid gray;
+  text-align: center;
+  color: orange;
+}
+
+h2{
+  border-bottom: 1px solid black;
+  text-align: right;
+}
+img{
+  position: absolute;
+}
+#first{
+  position: absolute;
+  margin-left:1100px;
+  margin-top: 400px
+}
+#second{
+  position: absolute;
+  margin-left:1100px;
+  margin-top: 420px;
+}
+#third{
+  position: absolute;
+  margin-left:1050px;
+  margin-top: 550px;
+}
+#book{
+  position: absolute;
+  margin-left:1100px;
+  margin-top: 150px;
+}
+.para{
+  margin-left: 900px;
+  width: 300px;
+}
+.animation{
+  margin-left: 1100px;
+  margin-top: 450px;
+}
+form{
+  margin-top: 50px;
+  border-bottom: 1px solid gray;
+}
+
+#name{
+  width:500px;
+}
