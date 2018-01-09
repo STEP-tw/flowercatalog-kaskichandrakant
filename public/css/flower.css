@@ -39,10 +39,12 @@ img{
   margin-left: 1100px;
   margin-top: 450px;
 }
-form{
+#commentForm{
   margin-top: 50px;
   border-bottom: 1px solid gray;
+  visibility: hidden;
 }
+
 
 #name{
   width:500px;

@@ -4,23 +4,21 @@ const http = require('http');
 const WebApp = require('./webapp');
 let toS = o => JSON.stringify(o, null, 2);
 const dataBase = require('./data/dataBase.json');
-
-let validUsers=[{name:'santosh',place:'karad'}]
-
-
+let validUsers=[{name:'santosh',place:'karad'}];
 
 let logRequest = (req, res) => {
   let text = ['------------------------------',
-  `${timeStamp()}`,
-  `${req.method} ${req.url}`,
-  `HEADERS=> ${toS(req.headers)}`,
-  `COOKIES=> ${toS(req.cookies)}`,
-  `BODY=> ${toS(req.body)}`, ''
-].join('\n');
-fs.appendFile('request.log', text, () => {});
+    `${timeStamp()}`,
+    `${req.method} ${req.url}`,
+    `HEADERS=> ${toS(req.headers)}`,
+    `COOKIES=> ${toS(req.cookies)}`,
+    `BODY=> ${toS(req.body)}`, ''
+  ].join('\n');
+  fs.appendFile('request.log', text, () => {});
 
-console.log(`${req.method} ${req.url}`);
+  console.log(`${req.method} ${req.url}`);
 }
+
 let getHeader = function(fileName) {
   let ext = fileName.slice(fileName.lastIndexOf('.') + 1)
   let extObj = {
@@ -48,16 +46,30 @@ let serveStaticFile = function(req, res) {
     return;
   }
 }
+
+let redirectLoggedInUserToHome = (req, res) => {
+  if (req.urlIsOneOf(['/', '/login']) && req.user) res.redirect('/GuestBook.html');
+}
+
 let serveFile = function(req, res) {
   if (req.method == "GET" && !req.url.startsWith('/Gu')) {
     serveStaticFile(req, res);
   }
 }
+
 let addComment = function(commentData) {
   commentData.date = new Date().toLocaleString();
   dataBase.unshift(commentData)
   fs.writeFileSync('./data/dataBase.json', JSON.stringify(dataBase));
 }
+
+let loadUser = (req, res) => {
+  let sessionid = req.cookies.sessionid;
+  let user = validUsers.find(u => u.sessionid == sessionid);
+  if (sessionid && user) {
+    req.user = user;
+  }
+};
 
 let serveComments = function(dataBase) {
   let dataToDisplay = '';
@@ -69,19 +81,17 @@ let serveComments = function(dataBase) {
   return dataToDisplay;
 }
 
-
-
 let app = WebApp.create();
+app.use(loadUser)
 app.use(logRequest);
 app.use(serveFile);
-
+app.use(redirectLoggedInUserToHome)
 
 app.post('/submitComment', (req, res) => {
   addComment(req.body);
   res.redirect('/login');
   res.end();
 });
-
 
 app.get('/GuestBook.html', (req, res) => {
   let fileContents = fs.readFileSync('./public' + req.url, 'utf8');
@@ -91,6 +101,7 @@ app.get('/GuestBook.html', (req, res) => {
   res.write(fileContents.replace(/NameAndComments/, comments));
   res.end();
 })
+
 app.get('/login', (req, res) => {
   res.setHeader('Content-type', 'text/html');
   if (req.cookies.logInFailed) res.write('<p>logIn Failed</p>');
@@ -99,9 +110,7 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  console.log('body.....',req.body);
   let user = validUsers.find(u => u.name == req.body.userName);
-  console.log('---------->',req.body.userName);
   if (!user) {
     console.log('--------uusernot');
     res.setHeader('Set-Cookie', `logInFailed=true`);
@@ -113,7 +122,6 @@ app.post('/login', (req, res) => {
   user.sessionid = sessionid;
   res.redirect('/GuestBook.html');
 });
-
 
 const PORT = 5000;
 let server = http.createServer(app);
