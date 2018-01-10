@@ -4,7 +4,7 @@ const http = require('http');
 const WebApp = require('./webapp');
 let toS = o => JSON.stringify(o, null, 2);
 const dataBase = require('./data/dataBase.json');
-let validUsers=[{name:'santosh',place:'karad'}];
+let validUsers=[{name:'santosh',place:'karad'},{name:'sulagna',place:'kolkata'}];
 
 let logRequest = (req, res) => {
   let text = ['------------------------------',
@@ -110,8 +110,9 @@ app.get('/GuestBook.html', (req, res) => {
 
 app.get('/login', (req, res) => {
   res.setHeader('Content-type', 'text/html');
-  //if (req.cookies.logInFailed) res.write('<p>logIn Failed</p>');
-  res.write('<form method="POST"> <input name="userName"><input name="place"> <input type="submit"></form>');
+  let comments = serveComments(dataBase);
+  let fileData=fs.readFileSync('./public/GuestBookForAll.html','utf8')
+  res.write(fileData.replace(/NameAndComments/, comments));
   res.end();
 });
 
