@@ -39,10 +39,9 @@ img{
   margin-left: 1100px;
   margin-top: 450px;
 }
-#commentForm{
+form{
   margin-top: 50px;
   border-bottom: 1px solid gray;
-  visibility: hidden;
 }
 
 

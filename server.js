@@ -57,8 +57,9 @@ let serveFile = function(req, res) {
   }
 }
 
-let addComment = function(commentData) {
+let addComment = function(commentData,user) {
   commentData.date = new Date().toLocaleString();
+  commentData.name=user.name;
   dataBase.unshift(commentData)
   fs.writeFileSync('./data/dataBase.json', JSON.stringify(dataBase));
 }
@@ -74,7 +75,7 @@ let loadUser = (req, res) => {
 let serveComments = function(dataBase) {
   let dataToDisplay = '';
   dataBase.forEach(function(element) {
-    dataToDisplay += '_' + element.date
+    dataToDisplay +=element.date
     dataToDisplay += '_' + element.name
     dataToDisplay += '_' + element.comments + '</br>'
   })
@@ -82,13 +83,13 @@ let serveComments = function(dataBase) {
 }
 
 let app = WebApp.create();
-app.use(loadUser)
 app.use(logRequest);
 app.use(serveFile);
-app.use(redirectLoggedInUserToHome)
+app.use(loadUser);
+app.use(redirectLoggedInUserToHome);
 
 app.post('/submitComment', (req, res) => {
-  addComment(req.body);
+  addComment(req.body,req.user);
   res.redirect('/login');
   res.end();
 });
@@ -96,6 +97,11 @@ app.post('/submitComment', (req, res) => {
 app.get('/GuestBook.html', (req, res) => {
   let fileContents = fs.readFileSync('./public' + req.url, 'utf8');
   let comments = serveComments(dataBase);
+  let user=req.user
+  if(!user){
+    res.redirect('/login')
+    return;
+  }
   res.statusCode = 200;
   res.setHeader('Content-Type', getHeader(req.url));
   res.write(fileContents.replace(/NameAndComments/, comments));
@@ -104,15 +110,15 @@ app.get('/GuestBook.html', (req, res) => {
 
 app.get('/login', (req, res) => {
   res.setHeader('Content-type', 'text/html');
-  if (req.cookies.logInFailed) res.write('<p>logIn Failed</p>');
+  //if (req.cookies.logInFailed) res.write('<p>logIn Failed</p>');
   res.write('<form method="POST"> <input name="userName"><input name="place"> <input type="submit"></form>');
   res.end();
 });
 
 app.post('/login', (req, res) => {
   let user = validUsers.find(u => u.name == req.body.userName);
+  req.user=req.body.userName;
   if (!user) {
-    console.log('--------uusernot');
     res.setHeader('Set-Cookie', `logInFailed=true`);
     res.redirect('/login');
     return;
