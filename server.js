@@ -4,7 +4,7 @@ const http = require('http');
 const WebApp = require('./webapp');
 let toS = o => JSON.stringify(o, null, 2);
 const dataBase = require('./data/dataBase.json');
-let validUsers=[{name:'santosh',place:'karad'},{name:'sulagna',place:'kolkata'}];
+let validUsers=[{name:'santosh',place:'karad'},{name:'sulagna',place:'kolkata'},{name:'vivek',place:'karad'}];
 
 let logRequest = (req, res) => {
   let text = ['------------------------------',
@@ -128,6 +128,11 @@ app.post('/login', (req, res) => {
   res.setHeader('Set-Cookie', `sessionid=${sessionid}`);
   user.sessionid = sessionid;
   res.redirect('/GuestBook.html');
+});
+app.get('/logout', (req, res) => {
+  res.setHeader('Set-Cookie', [`loginFailed=false,Expires=${new Date(1).toUTCString()}`, `sessionid=0,Expires=${new Date(1).toUTCString()}`]);
+  delete req.user.sessionid;
+  res.redirect('/login');
 });
 
 const PORT = 5000;
